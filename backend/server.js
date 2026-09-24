@@ -19,8 +19,10 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok", message: "Insurance Claim API is running" });
 });
 
+// Routes
+app.use("/api/auth", require("./routes/authRoutes"));
+
 // Routes will be added here in later milestones
-// app.use("/api/auth", require("./routes/authRoutes"));
 // app.use("/api/claims", require("./routes/claimRoutes"));
 // app.use("/api/policies", require("./routes/policyRoutes"));
 // app.use("/api/users", require("./routes/userRoutes"));
