@@ -25,9 +25,9 @@ app.get("/api/health", (req, res) => {
 // Routes
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/policies", require("./routes/policyRoutes"));
+app.use("/api/claims", require("./routes/claimRoutes"));
 
 // Routes will be added in later milestones
-// app.use("/api/claims", require("./routes/claimRoutes"));
 // app.use("/api/users", require("./routes/userRoutes"));
 // app.use("/api/surveys", require("./routes/surveyRoutes"));
 // app.use("/api/approvals", require("./routes/approvalRoutes"));
