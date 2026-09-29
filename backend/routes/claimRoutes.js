@@ -7,6 +7,7 @@ const {
 } = require("../controllers/claimController");
 const { assignSurveyor } = require("../controllers/surveyController");
 const { createApproval } = require("../controllers/approvalController");
+const { getClaimHistory } = require("../controllers/claimHistoryController");
 
 const {
   protect,
@@ -29,6 +30,14 @@ router.get(
   protect,
   authorizeRoles("customer", "officer", "surveyor", "manager", "admin"),
   getClaims
+);
+
+// Get claim history
+router.get(
+  "/:id/history",
+  protect,
+  authorizeRoles("customer", "officer", "surveyor", "manager", "admin"),
+  getClaimHistory
 );
 
 // Get one claim

@@ -1,5 +1,7 @@
 const Claim = require("../models/Claim");
 const Policy = require("../models/Policy");
+const ClaimHistory = require("../models/ClaimHistory");
+const { createNotification } = require("../services/notificationService");
 
 // Create a new claim
 const createClaim = async (req, res) => {
@@ -68,6 +70,24 @@ const createClaim = async (req, res) => {
       incidentDate,
       description,
       claimedAmount,
+    });
+
+    // Create initial ClaimHistory
+    await ClaimHistory.create({
+      claim: claim._id,
+      previousStatus: null,
+      newStatus: "submitted",
+      updatedBy: req.user.id,
+      comments: "Claim submitted",
+    });
+
+    // Create notification for customer
+    await createNotification({
+      user: req.user.id,
+      title: "Claim Submitted",
+      message: `Your claim ${claim.claimNumber} has been successfully submitted.`,
+      type: "claim",
+      claim: claim._id,
     });
 
     res.status(201).json({

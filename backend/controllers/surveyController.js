@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 const SurveyReport = require("../models/SurveyReport");
 const Claim = require("../models/Claim");
 const User = require("../models/User");
+const ClaimHistory = require("../models/ClaimHistory");
+const { createNotification } = require("../services/notificationService");
 
 // Assign a surveyor to a claim (officer, manager, admin)
 const assignSurveyor = async (req, res) => {
@@ -50,6 +52,8 @@ const assignSurveyor = async (req, res) => {
       });
     }
 
+    const previousStatus = claim.status;
+
     // Assign surveyor
     claim.assignedSurveyor = surveyorUser._id;
     if (claim.status === "submitted" || claim.status === "documents_verified") {
@@ -57,6 +61,38 @@ const assignSurveyor = async (req, res) => {
     }
 
     await claim.save();
+
+    // Create ClaimHistory if status changed
+    if (previousStatus !== claim.status) {
+      await ClaimHistory.create({
+        claim: claim._id,
+        previousStatus,
+        newStatus: claim.status,
+        updatedBy: req.user.id,
+        comments: `Surveyor assigned to investigate claim`,
+      });
+    }
+
+    // Notify assigned surveyor
+    await createNotification({
+      user: surveyorUser._id,
+      title: "Survey Assigned",
+      message: `You have been assigned to survey claim ${claim.claimNumber}.`,
+      type: "survey",
+      claim: claim._id,
+    });
+
+    // Notify customer
+    const customerId = claim.customer?._id || claim.customer;
+    if (customerId) {
+      await createNotification({
+        user: customerId,
+        title: "Claim Under Investigation",
+        message: `A surveyor has been assigned to investigate your claim ${claim.claimNumber}.`,
+        type: "claim",
+        claim: claim._id,
+      });
+    }
 
     await claim.populate("assignedSurveyor", "name email phone role");
     await claim.populate("customer", "name email phone");
@@ -163,6 +199,18 @@ const createSurveyReport = async (req, res) => {
 
     await report.populate("claim");
     await report.populate("surveyor", "name email phone");
+
+    // Notify customer about survey report completion
+    if (claim.customer) {
+      const custId = claim.customer._id || claim.customer;
+      await createNotification({
+        user: custId,
+        title: "Survey Completed",
+        message: `The survey report for your claim ${claim.claimNumber} has been completed.`,
+        type: "survey",
+        claim: claim._id,
+      });
+    }
 
     res.status(201).json({
       message: "Survey report created successfully",

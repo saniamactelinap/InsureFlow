@@ -23,6 +23,10 @@ const notificationSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    claim: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Claim",
+    },
   },
   {
     timestamps: true,

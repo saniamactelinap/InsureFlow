@@ -1,6 +1,7 @@
 const fs = require("fs");
 const Document = require("../models/Document");
 const Claim = require("../models/Claim");
+const { createNotification } = require("../services/notificationService");
 
 // Create document record (metadata)
 const createDocument = async (req, res) => {
@@ -175,6 +176,23 @@ const verifyDocument = async (req, res) => {
 
     await document.populate("claim");
     await document.populate("uploadedBy", "name email");
+
+    // Notify customer on verification or rejection
+    if (document.claim && document.claim.customer) {
+      const isVerified = verificationStatus === "verified";
+      const isRejected = verificationStatus === "rejected";
+      if (isVerified || isRejected) {
+        await createNotification({
+          user: document.claim.customer,
+          title: isVerified ? "Document Verified" : "Document Rejected",
+          message: isVerified
+            ? `Your document (${document.documentType}) has been verified.`
+            : `Your document (${document.documentType}) has been rejected.`,
+          type: "document",
+          claim: document.claim._id,
+        });
+      }
+    }
 
     const message =
       verificationStatus === "verified"

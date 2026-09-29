@@ -3,6 +3,7 @@ const Settlement = require("../models/Settlement");
 const Claim = require("../models/Claim");
 const Approval = require("../models/Approval");
 const ClaimHistory = require("../models/ClaimHistory");
+const { createNotification } = require("../services/notificationService");
 
 // Create settlement (officer, manager, admin)
 const createSettlement = async (req, res) => {
@@ -122,6 +123,18 @@ const createSettlement = async (req, res) => {
     await settlement.populate("claim");
     await settlement.populate("processedBy", "name email role");
 
+    // Notify customer
+    if (claim.customer) {
+      const custId = claim.customer._id || claim.customer;
+      await createNotification({
+        user: custId,
+        title: "Settlement Processing",
+        message: `Settlement processing has started for your claim ${claim.claimNumber}.`,
+        type: "settlement",
+        claim: claim._id,
+      });
+    }
+
     res.status(201).json({
       message: "Settlement initiated successfully",
       settlement,
@@ -230,6 +243,18 @@ const updateSettlementStatus = async (req, res) => {
           updatedBy: req.user.id,
           comments: remarks || "Settlement completed and claim settled",
         });
+
+        // Notify customer
+        if (claim.customer) {
+          const custId = claim.customer._id || claim.customer;
+          await createNotification({
+            user: custId,
+            title: "Settlement Completed",
+            message: `Settlement for your claim ${claim.claimNumber} has been completed.`,
+            type: "settlement",
+            claim: claim._id,
+          });
+        }
       } else if (status === "failed") {
         await ClaimHistory.create({
           claim: claim._id,
@@ -297,6 +322,18 @@ const closeSettlement = async (req, res) => {
       updatedBy: req.user.id,
       comments: req.body.remarks || "Claim closed after settlement completion",
     });
+
+    // Notify customer
+    if (claim.customer) {
+      const custId = claim.customer._id || claim.customer;
+      await createNotification({
+        user: custId,
+        title: "Claim Closed",
+        message: `Your claim ${claim.claimNumber} has been closed.`,
+        type: "claim",
+        claim: claim._id,
+      });
+    }
 
     await settlement.populate("claim");
     await settlement.populate("processedBy", "name email role");

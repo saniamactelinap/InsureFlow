@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Approval = require("../models/Approval");
 const Claim = require("../models/Claim");
 const ClaimHistory = require("../models/ClaimHistory");
+const { createNotification } = require("../services/notificationService");
 
 // Create manager decision on claim (manager, admin)
 const createApproval = async (req, res) => {
@@ -116,6 +117,32 @@ const createApproval = async (req, res) => {
 
     await approval.populate("claim");
     await approval.populate("manager", "name email role");
+
+    // Notify customer
+    if (claim.customer) {
+      const custId = claim.customer._id || claim.customer;
+      const notifTitle =
+        decision === "approved"
+          ? "Claim Approved"
+          : decision === "rejected"
+          ? "Claim Rejected"
+          : "Information Requested";
+
+      const notifMessage =
+        decision === "approved"
+          ? `Your claim ${claim.claimNumber} has been approved.`
+          : decision === "rejected"
+          ? `Your claim ${claim.claimNumber} has been rejected.`
+          : `Additional information has been requested for your claim ${claim.claimNumber}.`;
+
+      await createNotification({
+        user: custId,
+        title: notifTitle,
+        message: notifMessage,
+        type: "claim",
+        claim: claim._id,
+      });
+    }
 
     res.status(200).json({
       message: `Claim ${decision === "request_information" ? "information requested" : decision} successfully`,
