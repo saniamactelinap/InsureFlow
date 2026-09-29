@@ -6,6 +6,7 @@ const {
   getClaimById,
 } = require("../controllers/claimController");
 const { assignSurveyor } = require("../controllers/surveyController");
+const { createApproval } = require("../controllers/approvalController");
 
 const {
   protect,
@@ -44,6 +45,14 @@ router.put(
   protect,
   authorizeRoles("officer", "manager", "admin"),
   assignSurveyor
+);
+
+// Manager decision on claim (manager, admin only)
+router.put(
+  "/:id/approval",
+  protect,
+  authorizeRoles("manager", "admin"),
+  createApproval
 );
 
 module.exports = router;

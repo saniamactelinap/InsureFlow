@@ -14,10 +14,13 @@ const approvalSchema = new mongoose.Schema(
     },
     decision: {
       type: String,
-      enum: ["pending", "approved", "rejected"],
+      enum: ["pending", "approved", "rejected", "request_information"],
       default: "pending",
     },
     comments: {
+      type: String,
+    },
+    remarks: {
       type: String,
     },
     approvedAmount: {
