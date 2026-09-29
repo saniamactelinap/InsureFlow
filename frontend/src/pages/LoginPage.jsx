@@ -1,0 +1,224 @@
+import React, { useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Shield, Lock, Mail, ArrowRight, AlertCircle, CheckCircle2 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import Button from "../components/common/Button";
+import Input from "../components/common/Input";
+
+export const LoginPage = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [formError, setFormError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = location.state?.from?.pathname || "/";
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setFormError("");
+
+    if (!email.trim() || !password.trim()) {
+      setFormError("Please enter both email and password.");
+      return;
+    }
+
+    setSubmitting(true);
+    const result = await login(email.trim(), password);
+    setSubmitting(false);
+
+    if (result.success) {
+      navigate(from, { replace: true });
+    } else {
+      setFormError(result.error || "Failed to sign in. Please check your credentials.");
+    }
+  };
+
+  // Demo accounts helper for quick evaluation
+  const handleQuickFill = (demoEmail, demoPassword) => {
+    setEmail(demoEmail);
+    setPassword(demoPassword);
+    setFormError("");
+  };
+
+  return (
+    <div className="min-h-screen flex bg-slate-50">
+      {/* LEFT SIDE: Brand & Value Proposition (hidden on small mobile) */}
+      <div className="hidden lg:flex lg:w-1/2 bg-slate-900 text-white flex-col justify-between p-12 relative overflow-hidden">
+        {/* Subtle background glow */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-primary-600/20 blur-[100px] rounded-full pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-500/10 blur-[80px] rounded-full pointer-events-none"></div>
+
+        {/* Top Logo */}
+        <div className="relative z-10">
+          <Link to="/" className="inline-flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-xl bg-primary-600 flex items-center justify-center text-white shadow-md">
+              <Shield className="w-5 h-5" />
+            </div>
+            <span className="text-2xl font-bold tracking-tight text-white">
+              Insure<span className="text-primary-400">Flow</span>
+            </span>
+          </Link>
+        </div>
+
+        {/* Center Content */}
+        <div className="relative z-10 space-y-6 max-w-lg">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs font-semibold text-primary-400">
+            <span>Secure Claims Portal</span>
+          </div>
+
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+            Transparent claims management for modern policyholders.
+          </h2>
+
+          <p className="text-slate-400 text-sm leading-relaxed">
+            Access your insurance policies, track claim status in real-time, upload
+            supporting documents, and monitor approval milestones seamlessly.
+          </p>
+
+          <div className="space-y-3 pt-2">
+            <div className="flex items-center gap-3 text-xs text-slate-300">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+              <span>Full audit history logged for every claim transition</span>
+            </div>
+            <div className="flex items-center gap-3 text-xs text-slate-300">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+              <span>Instant milestone notifications to policyholders and staff</span>
+            </div>
+            <div className="flex items-center gap-3 text-xs text-slate-300">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+              <span>Structured multi-tier approvals with surveyor inspection</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom footer text */}
+        <div className="relative z-10 text-xs text-slate-500">
+          &copy; {new Date().getFullYear()} InsureFlow Platform. Safe &amp; Verified.
+        </div>
+      </div>
+
+      {/* RIGHT SIDE: Login Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12">
+        <div className="max-w-md w-full space-y-8">
+          {/* Mobile Logo View */}
+          <div className="lg:hidden text-center">
+            <Link to="/" className="inline-flex items-center gap-2 mb-4">
+              <div className="w-9 h-9 rounded-lg bg-primary-600 flex items-center justify-center text-white">
+                <Shield className="w-5 h-5" />
+              </div>
+              <span className="text-xl font-bold tracking-tight text-slate-900">
+                Insure<span className="text-primary-600">Flow</span>
+              </span>
+            </Link>
+          </div>
+
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              Sign in to your account
+            </h1>
+            <p className="mt-2 text-sm text-slate-600">
+              Enter your credentials to access the InsureFlow platform.
+            </p>
+          </div>
+
+          {/* Error Banner */}
+          {formError && (
+            <div
+              role="alert"
+              className="p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-start gap-2.5 animate-in fade-in duration-150"
+            >
+              <AlertCircle className="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 font-medium">{formError}</div>
+            </div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <Input
+              label="Email Address"
+              id="email"
+              name="email"
+              type="email"
+              placeholder="name@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+              leftIcon={<Mail className="w-4 h-4" />}
+            />
+
+            <Input
+              label="Password"
+              id="password"
+              name="password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              autoComplete="current-password"
+              leftIcon={<Lock className="w-4 h-4" />}
+            />
+
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              loading={submitting}
+              className="w-full justify-center shadow-md shadow-primary-600/20"
+              rightIcon={<ArrowRight className="w-4 h-4" />}
+            >
+              Sign In
+            </Button>
+          </form>
+
+          {/* Quick Demo Pre-fills for Testing */}
+          <div className="pt-4 border-t border-slate-200">
+            <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2.5">
+              Quick Test Sign In:
+            </p>
+            <div className="grid grid-cols-3 gap-2 text-xs">
+              <button
+                type="button"
+                onClick={() => handleQuickFill("customer@insureflow.com", "password123")}
+                className="px-2.5 py-2 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-center truncate transition-colors"
+              >
+                👤 Customer
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickFill("officer@insureflow.com", "password123")}
+                className="px-2.5 py-2 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-center truncate transition-colors"
+              >
+                📋 Officer
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickFill("surveyor@insureflow.com", "password123")}
+                className="px-2.5 py-2 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-center truncate transition-colors"
+              >
+                🔍 Surveyor
+              </button>
+            </div>
+          </div>
+
+          <p className="text-center text-xs text-slate-600">
+            Don't have an account yet?{" "}
+            <Link
+              to="/register"
+              className="font-semibold text-primary-600 hover:text-primary-700 underline underline-offset-4"
+            >
+              Create Account
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default LoginPage;
