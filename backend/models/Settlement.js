@@ -20,7 +20,15 @@ const settlementSchema = new mongoose.Schema(
       enum: ["pending", "processing", "completed", "failed"],
       default: "pending",
     },
+    status: {
+      type: String,
+      enum: ["pending", "processing", "completed", "failed"],
+      default: "processing",
+    },
     paymentMethod: {
+      type: String,
+    },
+    paymentReference: {
       type: String,
     },
     transactionId: {
@@ -28,6 +36,16 @@ const settlementSchema = new mongoose.Schema(
     },
     paymentDate: {
       type: Date,
+    },
+    settlementDate: {
+      type: Date,
+    },
+    remarks: {
+      type: String,
+    },
+    processedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
   },
   {

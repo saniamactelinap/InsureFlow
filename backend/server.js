@@ -29,10 +29,10 @@ app.use("/api/claims", require("./routes/claimRoutes"));
 app.use("/api/documents", require("./routes/documentRoutes"));
 app.use("/api/surveys", require("./routes/surveyRoutes"));
 app.use("/api/approvals", require("./routes/approvalRoutes"));
+app.use("/api/settlements", require("./routes/settlementRoutes"));
 
 // Routes will be added in later milestones
 // app.use("/api/users", require("./routes/userRoutes"));
-// app.use("/api/settlements", require("./routes/settlementRoutes"));
 
 // Basic error handler
 app.use((err, req, res, next) => {
