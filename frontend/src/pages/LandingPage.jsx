@@ -169,10 +169,10 @@ export const LandingPage = () => {
                   </div>
                   <div>
                     <div className="text-xl sm:text-2xl font-bold text-slate-900">
-                      Real-Time
+                      100%
                     </div>
                     <div className="text-xs text-slate-500 font-medium mt-0.5">
-                      Status Updates
+                      Status Visibility
                     </div>
                   </div>
                 </div>
@@ -399,7 +399,7 @@ export const LandingPage = () => {
                   Claim Lifecycle Tracking
                 </h3>
                 <p className="text-sm text-slate-600 leading-relaxed">
-                  Real-time status updates from initial submission through document review, survey investigation, approval, and final settlement.
+                  Transparent status updates from initial submission through document review, survey investigation, approval, and final settlement.
                 </p>
               </Card>
 
@@ -545,11 +545,11 @@ export const LandingPage = () => {
                 <div className="flex items-center gap-3 mb-3">
                   <Clock className="w-5 h-5 text-primary-600" />
                   <h4 className="font-bold text-slate-900 text-base">
-                    Real-Time Visibility
+                    Transparent Status Visibility
                   </h4>
                 </div>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  Policyholders receive immediate notifications as soon as their documents are verified, surveys completed, or settlement processed.
+                  Policyholders receive prompt notifications as soon as their documents are verified, surveys completed, or settlement processed.
                 </p>
               </div>
             </div>

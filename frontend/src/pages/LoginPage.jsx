@@ -31,17 +31,16 @@ export const LoginPage = () => {
     setSubmitting(false);
 
     if (result.success) {
-      navigate(from, { replace: true });
+      const redirectTarget =
+        from && from !== "/"
+          ? from
+          : result.user?.role === "customer"
+          ? "/customer/dashboard"
+          : "/";
+      navigate(redirectTarget, { replace: true });
     } else {
       setFormError(result.error || "Failed to sign in. Please check your credentials.");
     }
-  };
-
-  // Demo accounts helper for quick evaluation
-  const handleQuickFill = (demoEmail, demoPassword) => {
-    setEmail(demoEmail);
-    setPassword(demoPassword);
-    setFormError("");
   };
 
   return (
@@ -75,7 +74,7 @@ export const LoginPage = () => {
           </h2>
 
           <p className="text-slate-400 text-sm leading-relaxed">
-            Access your insurance policies, track claim status in real-time, upload
+            Access your insurance policies, track claim status transparently, upload
             supporting documents, and monitor approval milestones seamlessly.
           </p>
 
@@ -175,36 +174,6 @@ export const LoginPage = () => {
               Sign In
             </Button>
           </form>
-
-          {/* Quick Demo Pre-fills for Testing */}
-          <div className="pt-4 border-t border-slate-200">
-            <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2.5">
-              Quick Test Sign In:
-            </p>
-            <div className="grid grid-cols-3 gap-2 text-xs">
-              <button
-                type="button"
-                onClick={() => handleQuickFill("customer@insureflow.com", "password123")}
-                className="px-2.5 py-2 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-center truncate transition-colors"
-              >
-                👤 Customer
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickFill("officer@insureflow.com", "password123")}
-                className="px-2.5 py-2 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-center truncate transition-colors"
-              >
-                📋 Officer
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickFill("surveyor@insureflow.com", "password123")}
-                className="px-2.5 py-2 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-center truncate transition-colors"
-              >
-                🔍 Surveyor
-              </button>
-            </div>
-          </div>
 
           <p className="text-center text-xs text-slate-600">
             Don't have an account yet?{" "}
