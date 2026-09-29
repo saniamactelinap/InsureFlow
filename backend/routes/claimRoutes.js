@@ -5,6 +5,7 @@ const {
   getClaims,
   getClaimById,
 } = require("../controllers/claimController");
+const { assignSurveyor } = require("../controllers/surveyController");
 
 const {
   protect,
@@ -35,6 +36,14 @@ router.get(
   protect,
   authorizeRoles("customer", "officer", "surveyor", "manager", "admin"),
   getClaimById
+);
+
+// Assign surveyor to claim (officer, manager, admin only)
+router.put(
+  "/:id/assign-surveyor",
+  protect,
+  authorizeRoles("officer", "manager", "admin"),
+  assignSurveyor
 );
 
 module.exports = router;

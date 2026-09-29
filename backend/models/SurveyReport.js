@@ -30,6 +30,14 @@ const surveyReportSchema = new mongoose.Schema(
     recommendation: {
       type: String,
     },
+    reportStatus: {
+      type: String,
+      enum: ["pending", "completed", "reviewed"],
+      default: "completed",
+    },
+    remarks: {
+      type: String,
+    },
     images: [
       {
         type: String,
