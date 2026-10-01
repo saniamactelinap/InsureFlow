@@ -165,6 +165,7 @@ export const CustomerDashboard = () => {
               src="/images/customer-tracking.jpg"
               alt="Policyholder tracking claims"
               className="w-full h-full object-cover object-center"
+              loading="lazy"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent flex items-end p-3">
               <span className="text-[11px] font-medium text-white drop-shadow">

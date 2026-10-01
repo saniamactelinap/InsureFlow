@@ -1,67 +1,69 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import PageLoader from "./components/common/PageLoader";
 
 // Public Pages
-import LandingPage from "./pages/LandingPage";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
+const LandingPage = lazy(() => import("./pages/LandingPage"));
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 
 // Customer Pages
-import CustomerDashboard from "./pages/customer/CustomerDashboard";
-import PoliciesPage from "./pages/customer/PoliciesPage";
-import PolicyDetailsPage from "./pages/customer/PolicyDetailsPage";
-import ClaimsPage from "./pages/customer/ClaimsPage";
-import SubmitClaimPage from "./pages/customer/SubmitClaimPage";
-import ClaimDetailsPage from "./pages/customer/ClaimDetailsPage";
-import DocumentsPage from "./pages/customer/DocumentsPage";
-import NotificationsPage from "./pages/customer/NotificationsPage";
-import ProfilePage from "./pages/customer/ProfilePage";
+const CustomerDashboard = lazy(() => import("./pages/customer/CustomerDashboard"));
+const PoliciesPage = lazy(() => import("./pages/customer/PoliciesPage"));
+const PolicyDetailsPage = lazy(() => import("./pages/customer/PolicyDetailsPage"));
+const ClaimsPage = lazy(() => import("./pages/customer/ClaimsPage"));
+const SubmitClaimPage = lazy(() => import("./pages/customer/SubmitClaimPage"));
+const ClaimDetailsPage = lazy(() => import("./pages/customer/ClaimDetailsPage"));
+const DocumentsPage = lazy(() => import("./pages/customer/DocumentsPage"));
+const NotificationsPage = lazy(() => import("./pages/customer/NotificationsPage"));
+const ProfilePage = lazy(() => import("./pages/customer/ProfilePage"));
 
 // Officer Pages
-import OfficerDashboard from "./pages/officer/OfficerDashboard";
-import OfficerClaimsPage from "./pages/officer/OfficerClaimsPage";
-import OfficerClaimDetailsPage from "./pages/officer/OfficerClaimDetailsPage";
-import OfficerDocumentsPage from "./pages/officer/OfficerDocumentsPage";
-import OfficerSurveysPage from "./pages/officer/OfficerSurveysPage";
-import OfficerSettlementsPage from "./pages/officer/OfficerSettlementsPage";
+const OfficerDashboard = lazy(() => import("./pages/officer/OfficerDashboard"));
+const OfficerClaimsPage = lazy(() => import("./pages/officer/OfficerClaimsPage"));
+const OfficerClaimDetailsPage = lazy(() => import("./pages/officer/OfficerClaimDetailsPage"));
+const OfficerDocumentsPage = lazy(() => import("./pages/officer/OfficerDocumentsPage"));
+const OfficerSurveysPage = lazy(() => import("./pages/officer/OfficerSurveysPage"));
+const OfficerSettlementsPage = lazy(() => import("./pages/officer/OfficerSettlementsPage"));
 
 // Surveyor Pages
-import SurveyorDashboard from "./pages/surveyor/SurveyorDashboard";
-import SurveyorClaimsPage from "./pages/surveyor/SurveyorClaimsPage";
-import SurveyorClaimDetailsPage from "./pages/surveyor/SurveyorClaimDetailsPage";
-import SurveyorSurveysPage from "./pages/surveyor/SurveyorSurveysPage";
+const SurveyorDashboard = lazy(() => import("./pages/surveyor/SurveyorDashboard"));
+const SurveyorClaimsPage = lazy(() => import("./pages/surveyor/SurveyorClaimsPage"));
+const SurveyorClaimDetailsPage = lazy(() => import("./pages/surveyor/SurveyorClaimDetailsPage"));
+const SurveyorSurveysPage = lazy(() => import("./pages/surveyor/SurveyorSurveysPage"));
 
 // Manager Pages
-import ManagerDashboard from "./pages/manager/ManagerDashboard";
-import ManagerApprovalsPage from "./pages/manager/ManagerApprovalsPage";
-import ManagerClaimsPage from "./pages/manager/ManagerClaimsPage";
-import ManagerClaimReviewPage from "./pages/manager/ManagerClaimReviewPage";
-import ManagerSurveysPage from "./pages/manager/ManagerSurveysPage";
-import ManagerSettlementsPage from "./pages/manager/ManagerSettlementsPage";
+const ManagerDashboard = lazy(() => import("./pages/manager/ManagerDashboard"));
+const ManagerApprovalsPage = lazy(() => import("./pages/manager/ManagerApprovalsPage"));
+const ManagerClaimsPage = lazy(() => import("./pages/manager/ManagerClaimsPage"));
+const ManagerClaimReviewPage = lazy(() => import("./pages/manager/ManagerClaimReviewPage"));
+const ManagerSurveysPage = lazy(() => import("./pages/manager/ManagerSurveysPage"));
+const ManagerSettlementsPage = lazy(() => import("./pages/manager/ManagerSettlementsPage"));
 
 // Admin Pages
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminUsersPage from "./pages/admin/AdminUsersPage";
-import AdminPoliciesPage from "./pages/admin/AdminPoliciesPage";
-import AdminClaimsPage from "./pages/admin/AdminClaimsPage";
-import AdminClaimDetailsPage from "./pages/admin/AdminClaimDetailsPage";
-import AdminDocumentsPage from "./pages/admin/AdminDocumentsPage";
-import AdminSurveysPage from "./pages/admin/AdminSurveysPage";
-import AdminApprovalsPage from "./pages/admin/AdminApprovalsPage";
-import AdminSettlementsPage from "./pages/admin/AdminSettlementsPage";
-import AdminNotificationsPage from "./pages/admin/AdminNotificationsPage";
-import AdminProfilePage from "./pages/admin/AdminProfilePage";
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminUsersPage = lazy(() => import("./pages/admin/AdminUsersPage"));
+const AdminPoliciesPage = lazy(() => import("./pages/admin/AdminPoliciesPage"));
+const AdminClaimsPage = lazy(() => import("./pages/admin/AdminClaimsPage"));
+const AdminClaimDetailsPage = lazy(() => import("./pages/admin/AdminClaimDetailsPage"));
+const AdminDocumentsPage = lazy(() => import("./pages/admin/AdminDocumentsPage"));
+const AdminSurveysPage = lazy(() => import("./pages/admin/AdminSurveysPage"));
+const AdminApprovalsPage = lazy(() => import("./pages/admin/AdminApprovalsPage"));
+const AdminSettlementsPage = lazy(() => import("./pages/admin/AdminSettlementsPage"));
+const AdminNotificationsPage = lazy(() => import("./pages/admin/AdminNotificationsPage"));
+const AdminProfilePage = lazy(() => import("./pages/admin/AdminProfilePage"));
 
 // Staff Shared Pages
-import StaffNotificationsPage from "./pages/staff/StaffNotificationsPage";
-import StaffProfilePage from "./pages/staff/StaffProfilePage";
+const StaffNotificationsPage = lazy(() => import("./pages/staff/StaffNotificationsPage"));
+const StaffProfilePage = lazy(() => import("./pages/staff/StaffProfilePage"));
 
 function App() {
   return (
     <AuthProvider>
-      <Routes>
+      <Suspense fallback={<PageLoader message="Loading InsureFlow module..." />}>
+        <Routes>
         {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -416,6 +418,7 @@ function App() {
         {/* Catch-all route */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </Suspense>
     </AuthProvider>
   );
 }
