@@ -31,12 +31,18 @@ export const LoginPage = () => {
     setSubmitting(false);
 
     if (result.success) {
-      const redirectTarget =
-        from && from !== "/"
-          ? from
-          : result.user?.role === "customer"
-          ? "/customer/dashboard"
-          : "/";
+      let defaultDashboard = "/";
+      if (result.user?.role === "customer") {
+        defaultDashboard = "/customer/dashboard";
+      } else if (result.user?.role === "officer") {
+        defaultDashboard = "/officer/dashboard";
+      } else if (result.user?.role === "surveyor") {
+        defaultDashboard = "/surveyor/dashboard";
+      } else if (result.user?.role === "manager" || result.user?.role === "admin") {
+        defaultDashboard = "/manager/dashboard";
+      }
+
+      const redirectTarget = from && from !== "/" ? from : defaultDashboard;
       navigate(redirectTarget, { replace: true });
     } else {
       setFormError(result.error || "Failed to sign in. Please check your credentials.");

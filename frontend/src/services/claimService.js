@@ -25,11 +25,23 @@ export const getClaimHistory = async (id) => {
   return list;
 };
 
+export const assignSurveyor = async (id, surveyorId) => {
+  const res = await api.put(`/claims/${id}/assign-surveyor`, { surveyorId });
+  return res.data;
+};
+
+export const submitApprovalDecision = async (id, approvalData) => {
+  const res = await api.put(`/claims/${id}/approval`, approvalData);
+  return res.data;
+};
+
 export const claimService = {
   getClaims,
   getClaimById,
   createClaim,
   getClaimHistory,
+  assignSurveyor,
+  submitApprovalDecision,
 };
 
 export default claimService;

@@ -16,9 +16,24 @@ export const uploadDocument = async (formData) => {
   return res.data;
 };
 
+export const getDocumentById = async (id) => {
+  const res = await api.get(`/documents/${id}`);
+  return res.data?.document || res.data;
+};
+
+export const verifyDocument = async (id, { verificationStatus, remarks }) => {
+  const res = await api.put(`/documents/${id}/verify`, {
+    verificationStatus,
+    remarks,
+  });
+  return res.data;
+};
+
 export const documentService = {
   getDocuments,
+  getDocumentById,
   uploadDocument,
+  verifyDocument,
 };
 
 export default documentService;
