@@ -38,8 +38,10 @@ export const LoginPage = () => {
         defaultDashboard = "/officer/dashboard";
       } else if (result.user?.role === "surveyor") {
         defaultDashboard = "/surveyor/dashboard";
-      } else if (result.user?.role === "manager" || result.user?.role === "admin") {
+      } else if (result.user?.role === "manager") {
         defaultDashboard = "/manager/dashboard";
+      } else if (result.user?.role === "admin") {
+        defaultDashboard = "/admin/dashboard";
       }
 
       const redirectTarget = from && from !== "/" ? from : defaultDashboard;

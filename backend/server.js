@@ -32,8 +32,7 @@ app.use("/api/approvals", require("./routes/approvalRoutes"));
 app.use("/api/settlements", require("./routes/settlementRoutes"));
 app.use("/api/notifications", require("./routes/notificationRoutes"));
 
-// Routes will be added in later milestones
-// app.use("/api/users", require("./routes/userRoutes"));
+app.use("/api/users", require("./routes/userRoutes"));
 
 // Basic error handler
 app.use((err, req, res, next) => {

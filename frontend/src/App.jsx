@@ -41,6 +41,19 @@ import ManagerClaimReviewPage from "./pages/manager/ManagerClaimReviewPage";
 import ManagerSurveysPage from "./pages/manager/ManagerSurveysPage";
 import ManagerSettlementsPage from "./pages/manager/ManagerSettlementsPage";
 
+// Admin Pages
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import AdminPoliciesPage from "./pages/admin/AdminPoliciesPage";
+import AdminClaimsPage from "./pages/admin/AdminClaimsPage";
+import AdminClaimDetailsPage from "./pages/admin/AdminClaimDetailsPage";
+import AdminDocumentsPage from "./pages/admin/AdminDocumentsPage";
+import AdminSurveysPage from "./pages/admin/AdminSurveysPage";
+import AdminApprovalsPage from "./pages/admin/AdminApprovalsPage";
+import AdminSettlementsPage from "./pages/admin/AdminSettlementsPage";
+import AdminNotificationsPage from "./pages/admin/AdminNotificationsPage";
+import AdminProfilePage from "./pages/admin/AdminProfilePage";
+
 // Staff Shared Pages
 import StaffNotificationsPage from "./pages/staff/StaffNotificationsPage";
 import StaffProfilePage from "./pages/staff/StaffProfilePage";
@@ -306,6 +319,96 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["manager"]}>
               <StaffProfilePage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Central Administrator Portal Protected Routes */}
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminUsersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/policies"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminPoliciesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/claims"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminClaimsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/claims/:id"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminClaimDetailsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/documents"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminDocumentsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/surveys"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminSurveysPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/approvals"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminApprovalsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/settlements"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminSettlementsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/notifications"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminNotificationsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/profile"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminProfilePage />
             </ProtectedRoute>
           }
         />

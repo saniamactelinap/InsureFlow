@@ -13,9 +13,27 @@ export const getPolicyById = async (id) => {
   return policy;
 };
 
+export const createPolicy = async (policyData) => {
+  const res = await api.post("/policies", policyData);
+  return res.data?.policy || res.data;
+};
+
+export const updatePolicy = async (id, policyData) => {
+  const res = await api.put(`/policies/${id}`, policyData);
+  return res.data?.policy || res.data;
+};
+
+export const deletePolicy = async (id) => {
+  const res = await api.delete(`/policies/${id}`);
+  return res.data;
+};
+
 export const policyService = {
   getPolicies,
   getPolicyById,
+  createPolicy,
+  updatePolicy,
+  deletePolicy,
 };
 
 export default policyService;
