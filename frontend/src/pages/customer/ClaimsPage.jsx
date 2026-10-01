@@ -148,6 +148,32 @@ export const ClaimsPage = () => {
           </select>
         </div>
 
+        {/* Executive KPI Stats Bar */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="p-4 rounded-xl bg-white border border-slate-200/90 shadow-sm">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Total Claims Filed</span>
+            <span className="text-xl font-extrabold text-slate-900">{claims.length}</span>
+          </div>
+          <div className="p-4 rounded-xl bg-white border border-slate-200/90 shadow-sm">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Under Active Review</span>
+            <span className="text-xl font-extrabold text-amber-600">
+              {claims.filter((c) => ["submitted", "documents_verified", "under_investigation"].includes(c.status)).length}
+            </span>
+          </div>
+          <div className="p-4 rounded-xl bg-white border border-slate-200/90 shadow-sm">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Approved & Settled</span>
+            <span className="text-xl font-extrabold text-emerald-600">
+              {claims.filter((c) => ["approved", "settlement_processing", "settled"].includes(c.status)).length}
+            </span>
+          </div>
+          <div className="p-4 rounded-xl bg-white border border-slate-200/90 shadow-sm">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Total Amount Claimed</span>
+            <span className="text-xl font-extrabold text-slate-900">
+              {formatCurrency(claims.reduce((sum, c) => sum + (c.claimedAmount || 0), 0))}
+            </span>
+          </div>
+        </div>
+
         {/* Claims View */}
         {filteredClaims.length === 0 ? (
           <Card className="p-12 text-center bg-slate-50/50">

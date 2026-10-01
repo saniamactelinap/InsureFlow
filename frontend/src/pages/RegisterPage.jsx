@@ -74,9 +74,14 @@ export const RegisterPage = () => {
   return (
     <div className="min-h-screen flex bg-slate-50">
       {/* LEFT SIDE: Brand & Value Proposition */}
-      <div className="hidden lg:flex lg:w-1/2 bg-slate-900 text-white flex-col justify-between p-12 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary-600/20 blur-[100px] rounded-full pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-500/10 blur-[80px] rounded-full pointer-events-none"></div>
+      <div className="hidden lg:flex lg:w-1/2 bg-slate-950 text-white flex-col justify-between p-12 relative overflow-hidden">
+        {/* Real photography background with dark gradient overlay */}
+        <img
+          src="/images/trust-security.jpg"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover object-center opacity-25 mix-blend-luminosity pointer-events-none"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/85 to-slate-900/90 pointer-events-none"></div>
 
         <div className="relative z-10">
           <Link to="/" className="inline-flex items-center gap-2.5">

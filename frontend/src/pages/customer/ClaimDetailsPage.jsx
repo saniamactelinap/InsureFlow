@@ -9,6 +9,23 @@ import StatusBadge from "../../components/common/StatusBadge";
 import Badge from "../../components/common/Badge";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import ClaimJourney from "../../components/claims/ClaimJourney";
+import {
+  FileText,
+  Shield,
+  UploadCloud,
+  ArrowLeft,
+  Calendar,
+  IndianRupee,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+  ExternalLink,
+  Search,
+  Check,
+  Building,
+  User,
+  XCircle,
+} from "lucide-react";
 
 const DOCUMENT_TYPES = [
   "Medical Bill",
@@ -21,6 +38,8 @@ const DOCUMENT_TYPES = [
   "Death Certificate",
   "Other Supporting Document",
 ];
+
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB maximum
 
 export const ClaimDetailsPage = () => {
   const { id } = useParams();
@@ -69,20 +88,41 @@ export const ClaimDetailsPage = () => {
       console.error("Failed to load claim details", err);
       const msg =
         err.response?.status === 404
-          ? "Claim not found. Please check the URL."
+          ? "Claim dossier not found. Please verify the reference."
           : err.response?.status === 403
-          ? "You do not have permission to view this claim."
-          : "Unable to load claim details. Please try again.";
+          ? "You do not have authorization to view this claim."
+          : "Unable to load claim case file. Please try again.";
       setError(msg);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleFileSelection = (selected) => {
+    setUploadError("");
+    if (selected.size > MAX_FILE_SIZE_BYTES) {
+      setUploadError("File exceeds the maximum allowed size of 5 MB. Please choose a smaller file.");
+      setUploadFile(null);
+      return;
+    }
+    const validExtensions = [".pdf", ".jpg", ".jpeg", ".png"];
+    const fileExt = selected.name.substring(selected.name.lastIndexOf(".")).toLowerCase();
+    if (!validExtensions.includes(fileExt)) {
+      setUploadError("Invalid file type. Supported formats: PDF, PNG, JPG, JPEG.");
+      setUploadFile(null);
+      return;
+    }
+    setUploadFile(selected);
+  };
+
   const handleUpload = async (e) => {
     e.preventDefault();
     if (!uploadFile) {
       setUploadError("Please select a file to upload.");
+      return;
+    }
+    if (uploadFile.size > MAX_FILE_SIZE_BYTES) {
+      setUploadError("Maximum file size: 5 MB. Please reduce file size.");
       return;
     }
 
@@ -110,7 +150,7 @@ export const ClaimDetailsPage = () => {
       setTimeout(() => {
         setUploadSuccess(false);
         setShowUploadModal(false);
-      }, 1500);
+      }, 1400);
     } catch (err) {
       console.error("Upload failed", err);
       setUploadError(
@@ -121,12 +161,30 @@ export const ClaimDetailsPage = () => {
     }
   };
 
+  const formatCurrency = (amt) => {
+    if (amt === undefined || amt === null) return "₹0";
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(amt);
+  };
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "N/A";
+    return new Date(dateStr).toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
   if (loading) {
     return (
-      <AppLayout>
-        <div className="py-20 flex flex-col items-center justify-center gap-3">
+      <AppLayout pageTitle="Claim Dossier">
+        <div className="py-24 flex flex-col items-center justify-center gap-3">
           <LoadingSpinner size="lg" />
-          <p className="text-sm text-slate-500 font-medium">Loading claim dossier...</p>
+          <p className="text-sm text-slate-500 font-medium">Loading claim case file...</p>
         </div>
       </AppLayout>
     );
@@ -134,13 +192,11 @@ export const ClaimDetailsPage = () => {
 
   if (error || !claim) {
     return (
-      <AppLayout>
+      <AppLayout pageTitle="Claim Dossier">
         <div className="max-w-2xl mx-auto py-12">
           <Card className="p-8 text-center border-rose-200 bg-rose-50/50">
-            <div className="w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4 font-bold text-lg">
-              !
-            </div>
-            <h2 className="text-xl font-bold text-slate-900 mb-2">Error Loading Claim</h2>
+            <AlertCircle className="w-10 h-10 text-rose-600 mx-auto mb-3" />
+            <h2 className="text-xl font-bold text-slate-900 mb-2">Claim Not Found</h2>
             <p className="text-sm text-slate-600 mb-6">{error || "Unable to display claim details."}</p>
             <div className="flex items-center justify-center gap-3">
               <Button variant="primary" onClick={fetchClaimData}>
@@ -157,20 +213,20 @@ export const ClaimDetailsPage = () => {
   }
 
   return (
-    <AppLayout>
-      <div className="space-y-6 max-w-6xl mx-auto">
-        {/* Breadcrumb & Top Bar */}
+    <AppLayout pageTitle={`Claim #${claim.claimNumber}`}>
+      <div className="space-y-8 max-w-6xl mx-auto">
+        {/* Top Breadcrumb & Action Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-2 text-sm text-slate-500">
-            <Link to="/customer/dashboard" className="hover:text-primary-600 transition-colors">
+          <div className="flex items-center gap-2 text-xs text-slate-500">
+            <Link to="/customer/dashboard" className="hover:text-primary-700 transition-colors">
               Dashboard
             </Link>
             <span>/</span>
-            <Link to="/customer/claims" className="hover:text-primary-600 transition-colors">
+            <Link to="/customer/claims" className="hover:text-primary-700 transition-colors">
               Claims
             </Link>
             <span>/</span>
-            <span className="text-slate-900 font-mono font-medium">{claim.claimNumber}</span>
+            <span className="font-mono text-slate-900 font-semibold">#{claim.claimNumber}</span>
           </div>
 
           <div className="flex items-center gap-3">
@@ -178,60 +234,58 @@ export const ClaimDetailsPage = () => {
               variant="outline"
               size="sm"
               onClick={() => setShowUploadModal(true)}
-              className="flex items-center gap-2"
+              leftIcon={<UploadCloud className="w-4 h-4" />}
             >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-              </svg>
               Upload Supporting Document
             </Button>
             <Link to="/customer/claims">
-              <Button variant="ghost" size="sm">
-                Back to Claims
+              <Button variant="ghost" size="sm" leftIcon={<ArrowLeft className="w-4 h-4" />}>
+                All Claims
               </Button>
             </Link>
           </div>
         </div>
 
-        {/* Claim Header Card */}
-        <Card className="p-6">
+        {/* ================= 1. CLAIM OVERVIEW ================= */}
+        <Card className="p-6 md:p-8 border border-slate-200/90 shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100">
             <div>
               <div className="flex items-center gap-3 flex-wrap mb-2">
-                <h1 className="text-2xl font-bold font-mono text-slate-900">{claim.claimNumber}</h1>
+                <span className="font-mono text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  Official Case Dossier
+                </span>
                 <StatusBadge status={claim.status} size="md" />
                 <Badge variant="neutral" size="sm" className="capitalize">
                   {claim.claimType} Claim
                 </Badge>
               </div>
-              <p className="text-xs text-slate-500">
-                Created on {new Date(claim.createdAt).toLocaleDateString("en-IN", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+
+              <h1 className="text-2xl sm:text-3xl font-extrabold font-mono text-slate-900">
+                #{claim.claimNumber}
+              </h1>
+
+              <p className="text-xs text-slate-500 mt-1">
+                Registered on {formatDate(claim.createdAt)} &bull; Incident Date: {formatDate(claim.incidentDate)}
               </p>
             </div>
 
-            <div className="flex items-center gap-6 self-start md:self-auto bg-slate-50 px-5 py-3 rounded-xl border border-slate-200">
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex items-center gap-6">
               <div>
-                <span className="text-xs text-slate-500 uppercase font-semibold tracking-wider block">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
                   Claimed Amount
                 </span>
-                <span className="text-2xl font-bold text-slate-900">
-                  ₹{Number(claim.claimedAmount).toLocaleString("en-IN")}
+                <span className="text-2xl font-extrabold text-slate-900">
+                  {formatCurrency(claim.claimedAmount)}
                 </span>
               </div>
               {claim.policy && (
                 <div className="border-l border-slate-200 pl-6">
-                  <span className="text-xs text-slate-500 uppercase font-semibold tracking-wider block">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
                     Under Policy
                   </span>
                   <Link
                     to={`/customer/policies/${claim.policy._id}`}
-                    className="text-sm font-semibold text-primary-600 hover:text-primary-700 hover:underline block"
+                    className="text-sm font-bold text-primary-700 hover:underline font-mono"
                   >
                     {claim.policy.policyNumber}
                   </Link>
@@ -240,262 +294,338 @@ export const ClaimDetailsPage = () => {
             </div>
           </div>
 
-          {/* Quick Metrics */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 text-xs">
-            <div>
-              <span className="text-slate-500 block mb-0.5">Incident Date</span>
-              <span className="font-semibold text-slate-800 text-sm">
-                {new Date(claim.incidentDate).toLocaleDateString("en-IN", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                })}
-              </span>
-            </div>
-            <div>
-              <span className="text-slate-500 block mb-0.5">Policy Coverage Limit</span>
-              <span className="font-semibold text-slate-800 text-sm">
-                {claim.policy?.coverageAmount
-                  ? `₹${claim.policy.coverageAmount.toLocaleString("en-IN")}`
-                  : "N/A"}
-              </span>
-            </div>
-            <div>
-              <span className="text-slate-500 block mb-0.5">Supporting Documents</span>
-              <span className="font-semibold text-slate-800 text-sm">
-                {documents.length} File{documents.length !== 1 ? "s" : ""}
-              </span>
-            </div>
-            <div>
-              <span className="text-slate-500 block mb-0.5">Last Updated</span>
-              <span className="font-semibold text-slate-800 text-sm">
-                {new Date(claim.updatedAt).toLocaleDateString("en-IN", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                })}
-              </span>
+          {/* Description Block */}
+          <div className="pt-6">
+            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+              Incident Description &amp; Circumstances
+            </h3>
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-sm text-slate-800 leading-relaxed whitespace-pre-line">
+              {claim.description}
             </div>
           </div>
         </Card>
 
-        {/* Claim Lifecycle Journey */}
-        <Card className="p-6">
+        {/* ================= 2. POLICY INFORMATION ================= */}
+        {claim.policy && (
+          <Card className="p-6 border border-slate-200/90 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Shield className="w-5 h-5 text-primary-600" />
+                <h2 className="text-base font-bold text-slate-900">Policy Information</h2>
+              </div>
+              <Link
+                to={`/customer/policies/${claim.policy._id}`}
+                className="text-xs font-semibold text-primary-700 hover:underline"
+              >
+                View Policy Schedule &rarr;
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs bg-slate-50 p-4 rounded-xl border border-slate-100">
+              <div>
+                <span className="text-slate-500 block mb-0.5">Policy Number</span>
+                <span className="font-mono font-bold text-slate-900 text-sm">
+                  {claim.policy.policyNumber}
+                </span>
+              </div>
+              <div>
+                <span className="text-slate-500 block mb-0.5">Coverage Limit</span>
+                <span className="font-bold text-slate-900 text-sm">
+                  {formatCurrency(claim.policy.coverageAmount)}
+                </span>
+              </div>
+              <div>
+                <span className="text-slate-500 block mb-0.5">Premium</span>
+                <span className="font-semibold text-slate-800 text-sm">
+                  {formatCurrency(claim.policy.premiumAmount)} / yr
+                </span>
+              </div>
+              <div>
+                <span className="text-slate-500 block mb-0.5">Policy Status</span>
+                <div className="mt-0.5">
+                  <StatusBadge status={claim.policy.status} />
+                </div>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* ================= 3. CLAIM LIFECYCLE JOURNEY ================= */}
+        <Card className="p-6 border border-slate-200/90 shadow-sm">
           <div className="mb-4">
-            <h2 className="text-base font-semibold text-slate-900">Claim Lifecycle Journey</h2>
+            <h2 className="text-base font-bold text-slate-900">Claim Lifecycle Journey</h2>
             <p className="text-xs text-slate-500">
-              Transparent milestone progress tracking through underwriting, assessment, and disbursement.
+              Sequential phase tracking through underwriting, loss assessment, approval, and settlement.
             </p>
           </div>
-          <div className="py-4">
-            <ClaimJourney currentStatus={claim.status} orientation="horizontal" />
+          <div className="py-2">
+            <ClaimJourney status={claim.status} orientation="horizontal" />
           </div>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column: Details & Documents (2 cols) */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Description & Overview */}
-            <Card className="p-6">
-              <h2 className="text-base font-semibold text-slate-900 mb-3">Incident Description</h2>
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-sm text-slate-700 whitespace-pre-line leading-relaxed">
-                {claim.description}
-              </div>
-            </Card>
-
-            {/* Attached Documents */}
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="text-base font-semibold text-slate-900">Supporting Documents</h2>
-                  <p className="text-xs text-slate-500">
-                    Verification documents uploaded for claim assessment and audit.
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowUploadModal(true)}
-                  className="text-xs"
-                >
-                  + Add Document
-                </Button>
-              </div>
-
-              {documents.length === 0 ? (
-                <div className="text-center py-8 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                  <div className="w-10 h-10 text-slate-400 mx-auto mb-2">
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                  </div>
-                  <p className="text-xs font-medium text-slate-700">No documents uploaded for this claim yet</p>
-                  <p className="text-xs text-slate-400 mt-0.5 mb-3">
-                    Upload medical bills, FIR reports, or repair estimates to expedite review.
-                  </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowUploadModal(true)}
-                    className="text-xs"
-                  >
-                    Upload Now
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {documents.map((doc) => (
-                    <div
-                      key={doc._id}
-                      className="flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200 transition-colors"
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-primary-600 flex-shrink-0 shadow-sm">
-                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                          </svg>
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold text-slate-900 truncate">{doc.fileName}</p>
-                          <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-500">
-                            <span className="font-medium text-slate-700">{doc.documentType}</span>
-                            <span>•</span>
-                            <span>
-                              {new Date(doc.createdAt).toLocaleDateString("en-IN", {
-                                day: "numeric",
-                                month: "short",
-                              })}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-3 flex-shrink-0">
-                        <span
-                          className={`text-xs px-2.5 py-1 rounded-full font-medium capitalize ${
-                            doc.verificationStatus === "verified"
-                              ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
-                              : doc.verificationStatus === "rejected"
-                              ? "bg-rose-100 text-rose-800 border border-rose-200"
-                              : "bg-amber-100 text-amber-800 border border-amber-200"
-                          }`}
-                        >
-                          {doc.verificationStatus || "Pending"}
-                        </span>
-                        {doc.filePath && (
-                          <a
-                            href={doc.filePath}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-1.5 text-slate-400 hover:text-primary-600 transition-colors"
-                            title="View / Download File"
-                          >
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                            </svg>
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </Card>
-          </div>
-
-          {/* Right Column: Claim History Timeline */}
-          <div className="space-y-6">
-            <Card className="p-6">
-              <h2 className="text-base font-semibold text-slate-900 mb-1">Audit & Event History</h2>
-              <p className="text-xs text-slate-500 mb-6">
-                Official chronological log of every status transition and assessment action.
+        {/* ================= 4. DOCUMENTS DOSSIER ================= */}
+        <Card className="p-6 border border-slate-200/90 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-base font-bold text-slate-900">Supporting Evidence &amp; Documents</h2>
+              <p className="text-xs text-slate-500">
+                Official documents uploaded for reviewer verification and loss certification.
               </p>
-
-              {history.length === 0 ? (
-                <p className="text-xs text-slate-400 py-4 text-center">No history logs recorded yet.</p>
-              ) : (
-                <div className="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
-                  {history.map((item, idx) => (
-                    <div key={item._id || idx} className="relative group">
-                      {/* Timeline Dot */}
-                      <div
-                        className={`absolute -left-[27px] top-1 w-4 h-4 rounded-full border-2 bg-white transition-colors ${
-                          idx === 0
-                            ? "border-primary-600 bg-primary-50 ring-4 ring-primary-100"
-                            : "border-slate-300"
-                        }`}
-                      />
-
-                      <div className="bg-slate-50 p-3.5 rounded-lg border border-slate-200 text-xs">
-                        <div className="flex items-center justify-between gap-2 mb-1">
-                          <span className="font-semibold text-slate-900 capitalize">
-                            {item.newStatus?.replace(/_/g, " ")}
-                          </span>
-                          <span className="text-[10px] text-slate-400 font-mono">
-                            {new Date(item.createdAt).toLocaleDateString("en-IN", {
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
-                            })}
-                          </span>
-                        </div>
-
-                        {item.updatedBy && (
-                          <p className="text-[11px] text-slate-500 mb-1">
-                            Action by:{" "}
-                            <span className="font-medium text-slate-700 capitalize">
-                              {item.updatedBy.name || item.updatedBy.role || "Officer"}
-                            </span>{" "}
-                            ({item.updatedBy.role || "staff"})
-                          </p>
-                        )}
-
-                        {item.comments && (
-                          <p className="text-slate-600 bg-white p-2 rounded border border-slate-100 mt-1 italic">
-                            "{item.comments}"
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </Card>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowUploadModal(true)}
+              leftIcon={<UploadCloud className="w-4 h-4" />}
+            >
+              Upload File
+            </Button>
           </div>
+
+          {documents.length === 0 ? (
+            <div className="text-center py-8 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+              <FileText className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+              <p className="text-xs font-semibold text-slate-700">No documents attached to this claim yet</p>
+              <p className="text-xs text-slate-400 mt-0.5 mb-3">
+                Upload medical invoices, repair estimates, or police FIR reports (up to 5 MB).
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowUploadModal(true)}
+              >
+                Upload Now
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {documents.map((doc) => (
+                <div
+                  key={doc._id}
+                  className="flex items-start justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-200 hover:border-slate-300 transition-colors"
+                >
+                  <div className="flex items-start gap-2.5 min-w-0">
+                    <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0">
+                      <FileText className="w-4 h-4 text-slate-700" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-slate-900 truncate" title={doc.fileName}>
+                        {doc.fileName}
+                      </p>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        {doc.documentType} &bull; {formatDate(doc.createdAt)}
+                      </p>
+                      {doc.remarks && (
+                        <p className="text-[11px] text-slate-600 italic mt-1 bg-white p-1.5 rounded border border-slate-100">
+                          "{doc.remarks}"
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span
+                      className={`text-[10px] px-2 py-0.5 rounded-full font-semibold capitalize ${
+                        doc.verificationStatus === "verified"
+                          ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                          : doc.verificationStatus === "rejected"
+                          ? "bg-rose-50 text-rose-800 border border-rose-200"
+                          : "bg-amber-50 text-amber-800 border border-amber-200"
+                      }`}
+                    >
+                      {doc.verificationStatus || "Pending"}
+                    </span>
+                    {doc.filePath && (
+                      <a
+                        href={doc.filePath}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-slate-400 hover:text-slate-700 p-1"
+                        title="Open file"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+
+        {/* ================= 5. SURVEY & INVESTIGATION / 6. APPROVAL / 7. SETTLEMENT ================= */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Survey & Investigation Status */}
+          <Card className="p-5 border border-slate-200/90 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Phase 03
+                </span>
+                <span className="w-2 h-2 rounded-full bg-amber-500" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900 mb-1">
+                Survey &amp; Investigation
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Physical loss investigation conducted by licensed surveyor to record damages and compile assessment reports.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 text-xs">
+              <span className="text-slate-500">Surveyor Assignment:</span>{" "}
+              <span className="font-semibold text-slate-800">
+                {claim.assignedSurveyor ? "Assigned" : "Pending Assignment"}
+              </span>
+            </div>
+          </Card>
+
+          {/* Manager Approval Status */}
+          <Card className="p-5 border border-slate-200/90 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Phase 04
+                </span>
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900 mb-1">
+                Manager Approval
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Manager audits case history, evaluates surveyor loss estimates, and executes payout authorization sign-off.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 text-xs">
+              <span className="text-slate-500">Authorization Status:</span>{" "}
+              <span className="font-semibold text-slate-800 capitalize">
+                {["approved", "settlement_processing", "settled", "closed"].includes(claim.status)
+                  ? "Approved"
+                  : claim.status === "rejected"
+                  ? "Rejected"
+                  : "Under Evaluation"}
+              </span>
+            </div>
+          </Card>
+
+          {/* Settlement Status */}
+          <Card className="p-5 border border-slate-200/90 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Phase 05 &bull; 06
+                </span>
+                <span className="w-2 h-2 rounded-full bg-purple-500" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900 mb-1">
+                Settlement &amp; Closure
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Payment disbursement instruction executed with bank reference numbers, followed by official claim closure.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 text-xs">
+              <span className="text-slate-500">Settlement Status:</span>{" "}
+              <span className="font-semibold text-slate-800 capitalize">
+                {claim.status === "settled" || claim.status === "closed"
+                  ? "Settled & Closed"
+                  : claim.status === "settlement_processing"
+                  ? "Processing"
+                  : "Pending Prior Phases"}
+              </span>
+            </div>
+          </Card>
         </div>
 
-        {/* Upload Modal */}
+        {/* ================= 8. CLAIM HISTORY AUDIT TIMELINE ================= */}
+        <Card className="p-6 md:p-8 border border-slate-200/90 shadow-sm">
+          <div className="mb-6">
+            <h2 className="text-base font-bold text-slate-900">Claim Audit History</h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Permanent immutable chronological log of state changes, reviewer actions, and official comments.
+            </p>
+          </div>
+
+          {history.length === 0 ? (
+            <p className="text-xs text-slate-400 py-4 text-center">No history logs recorded yet.</p>
+          ) : (
+            <div className="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
+              {history.map((item, idx) => (
+                <div key={item._id || idx} className="relative">
+                  {/* Timeline Dot */}
+                  <div
+                    className={`absolute -left-[27px] top-1 w-4 h-4 rounded-full border-2 bg-white ${
+                      idx === 0
+                        ? "border-primary-600 bg-primary-50 ring-4 ring-primary-100"
+                        : "border-slate-300"
+                    }`}
+                  />
+
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <span className="font-bold text-slate-900 text-sm capitalize">
+                        {item.newStatus?.replace(/_/g, " ")}
+                      </span>
+                      <span className="text-[11px] text-slate-400 font-mono">
+                        {formatDate(item.createdAt)}
+                      </span>
+                    </div>
+
+                    {item.updatedBy && (
+                      <p className="text-[11px] text-slate-500 mb-1">
+                        Action by:{" "}
+                        <span className="font-semibold text-slate-800 capitalize">
+                          {item.updatedBy.name || item.updatedBy.role || "Officer"}
+                        </span>{" "}
+                        <span className="text-slate-400 capitalize font-mono">
+                          ({item.updatedBy.role || "staff"})
+                        </span>
+                      </p>
+                    )}
+
+                    {item.comments && (
+                      <div className="text-slate-700 bg-white p-2.5 rounded-lg border border-slate-100 mt-2 italic">
+                        "{item.comments}"
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+
+        {/* ================= UPLOAD MODAL WITH 5 MB LIMIT ================= */}
         {showUploadModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in">
-            <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-100">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-150">
+            <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200">
               <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
-                <h3 className="text-lg font-bold text-slate-900">Upload Supporting Document</h3>
+                <div className="flex items-center gap-2">
+                  <UploadCloud className="w-5 h-5 text-slate-700" />
+                  <h3 className="text-base font-bold text-slate-900">Upload Supporting Document</h3>
+                </div>
                 <button
                   type="button"
                   onClick={() => setShowUploadModal(false)}
-                  className="text-slate-400 hover:text-slate-600"
+                  className="text-slate-400 hover:text-slate-600 p-1"
                 >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  <XCircle className="w-5 h-5" />
                 </button>
               </div>
 
               {uploadSuccess ? (
-                <div className="py-8 text-center text-emerald-600">
-                  <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
-                    </svg>
+                <div className="py-8 text-center text-emerald-700">
+                  <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3 text-emerald-600">
+                    <CheckCircle2 className="w-6 h-6" />
                   </div>
-                  <p className="font-bold text-slate-900">Document Uploaded Successfully</p>
+                  <p className="font-bold text-slate-900 text-base">Document Uploaded Successfully</p>
                   <p className="text-xs text-slate-500 mt-1">Our review officer will verify it shortly.</p>
                 </div>
               ) : (
                 <form onSubmit={handleUpload} className="space-y-4">
                   {uploadError && (
-                    <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-700">
-                      {uploadError}
+                    <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-700 flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                      <span>{uploadError}</span>
                     </div>
                   )}
 
@@ -506,7 +636,7 @@ export const ClaimDetailsPage = () => {
                     <select
                       value={uploadType}
                       onChange={(e) => setUploadType(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm outline-none focus:border-primary-500"
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm outline-none focus:border-primary-500 bg-white"
                     >
                       {DOCUMENT_TYPES.map((type) => (
                         <option key={type} value={type}>
@@ -520,7 +650,7 @@ export const ClaimDetailsPage = () => {
                     <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
                       Select File
                     </label>
-                    <div className="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:border-primary-500 transition-colors">
+                    <div className="border-2 border-dashed border-slate-300 rounded-xl p-5 text-center hover:border-slate-400 bg-slate-50/50 transition-colors">
                       <input
                         type="file"
                         id="claim-doc-file"
@@ -528,33 +658,31 @@ export const ClaimDetailsPage = () => {
                         accept=".pdf,.png,.jpg,.jpeg"
                         onChange={(e) => {
                           if (e.target.files && e.target.files[0]) {
-                            setUploadFile(e.target.files[0]);
-                            setUploadError("");
+                            handleFileSelection(e.target.files[0]);
                           }
                         }}
                       />
                       <label htmlFor="claim-doc-file" className="cursor-pointer block">
-                        <div className="w-8 h-8 text-slate-400 mx-auto mb-1">
-                          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                        </div>
+                        <UploadCloud className="w-8 h-8 text-slate-400 mx-auto mb-1.5" />
                         {uploadFile ? (
                           <div className="text-xs">
-                            <span className="font-semibold text-slate-900 block truncate">{uploadFile.name}</span>
-                            <span className="text-slate-500">{(uploadFile.size / 1024).toFixed(1)} KB</span>
+                            <span className="font-bold text-slate-900 block truncate">{uploadFile.name}</span>
+                            <span className="text-slate-500 font-mono">
+                              {(uploadFile.size / (1024 * 1024)).toFixed(2)} MB
+                            </span>
                           </div>
                         ) : (
-                          <div className="text-xs">
-                            <span className="font-semibold text-primary-600">Click to browse</span> or drag and drop
-                            <p className="text-[11px] text-slate-400 mt-0.5">PDF, PNG, JPG (max 10MB)</p>
+                          <div className="text-xs space-y-0.5">
+                            <span className="font-semibold text-primary-700">Click to browse</span> or drag and drop
+                            <p className="text-[11px] text-slate-500">Supported formats: PDF, PNG, JPG, JPEG</p>
+                            <p className="text-[11px] font-semibold text-slate-700">Maximum file size: 5 MB</p>
                           </div>
                         )}
                       </label>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-end gap-3 pt-3">
+                  <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
                     <Button
                       type="button"
                       variant="outline"
@@ -570,14 +698,7 @@ export const ClaimDetailsPage = () => {
                       size="sm"
                       disabled={uploading || !uploadFile}
                     >
-                      {uploading ? (
-                        <div className="flex items-center gap-2">
-                          <LoadingSpinner size="sm" />
-                          <span>Uploading...</span>
-                        </div>
-                      ) : (
-                        "Upload Document"
-                      )}
+                      {uploading ? "Uploading..." : "Upload Document"}
                     </Button>
                   </div>
                 </form>

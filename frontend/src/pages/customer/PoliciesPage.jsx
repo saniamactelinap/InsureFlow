@@ -143,6 +143,42 @@ export const PoliciesPage = () => {
           </select>
         </div>
 
+        {/* Portfolio Summary Bar */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="p-4 rounded-xl bg-white border border-slate-200/90 shadow-sm">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+              Active Coverage Contracts
+            </span>
+            <span className="text-xl font-extrabold text-slate-900">
+              {policies.filter((p) => p.status === "active").length} of {policies.length} Policies
+            </span>
+          </div>
+          <div className="p-4 rounded-xl bg-white border border-slate-200/90 shadow-sm">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+              Total Insured Coverage
+            </span>
+            <span className="text-xl font-extrabold text-primary-700">
+              {formatCurrency(
+                policies
+                  .filter((p) => p.status === "active")
+                  .reduce((sum, p) => sum + (p.coverageAmount || 0), 0)
+              )}
+            </span>
+          </div>
+          <div className="p-4 rounded-xl bg-white border border-slate-200/90 shadow-sm">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+              Total Annual Premiums
+            </span>
+            <span className="text-xl font-extrabold text-slate-900">
+              {formatCurrency(
+                policies
+                  .filter((p) => p.status === "active")
+                  .reduce((sum, p) => sum + (p.premiumAmount || p.premium || 0), 0)
+              )}
+            </span>
+          </div>
+        </div>
+
         {/* Policies Grid */}
         {filteredPolicies.length === 0 ? (
           <Card className="p-12 text-center bg-slate-50/50">

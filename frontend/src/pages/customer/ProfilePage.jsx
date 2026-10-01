@@ -22,31 +22,36 @@ export const ProfilePage = () => {
         </div>
 
         {/* Profile Card Header */}
-        <Card className="p-6 md:p-8">
+        <Card className="p-6 md:p-8 border border-slate-200/90 shadow-sm bg-white">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
             {/* Avatar Circle */}
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary-600 to-indigo-700 text-white font-bold text-2xl flex items-center justify-center shadow-lg shadow-primary-500/20 flex-shrink-0">
+            <div className="w-20 h-20 rounded-2xl bg-slate-900 text-white font-bold text-2xl flex items-center justify-center shadow-md border border-slate-700 flex-shrink-0">
               {user?.name ? user.name.slice(0, 2).toUpperCase() : "CU"}
             </div>
 
             <div className="flex-1 text-center sm:text-left">
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
-                <h1 className="text-2xl font-bold text-slate-900">{user?.name || "Customer Account"}</h1>
-                <Badge variant="success" size="sm" className="self-center sm:self-auto capitalize">
+                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{user?.name || "Customer Account"}</h1>
+                <Badge variant="success" size="sm" className="self-center sm:self-auto capitalize font-semibold">
                   Verified {user?.role || "Customer"}
                 </Badge>
               </div>
               <p className="text-sm text-slate-500">{user?.email}</p>
-              <div className="mt-4 flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs text-slate-600">
-                <span className="flex items-center gap-1.5 bg-slate-100 px-3 py-1.5 rounded-lg">
-                  <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="mt-4 flex flex-wrap items-center justify-center sm:justify-start gap-3 text-xs text-slate-600">
+                <span className="flex items-center gap-1.5 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+                  <svg className="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
-                  ID: <span className="font-mono text-slate-900 font-semibold">{user?._id || user?.id || "N/A"}</span>
+                  <span>Member ID:</span>
+                  <span className="font-mono text-slate-900 font-semibold">{user?._id || user?.id || "N/A"}</span>
                 </span>
-                <span className="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-200">
+                <span className="flex items-center gap-1.5 bg-emerald-50 text-emerald-800 px-3 py-1.5 rounded-lg border border-emerald-200 font-medium">
                   <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                  KYC Verified
+                  KYC Verified &amp; Compliant
+                </span>
+                <span className="flex items-center gap-1.5 bg-blue-50 text-blue-800 px-3 py-1.5 rounded-lg border border-blue-200 font-medium">
+                  <span className="w-2 h-2 rounded-full bg-blue-500" />
+                  Direct Claims Eligible
                 </span>
               </div>
             </div>
